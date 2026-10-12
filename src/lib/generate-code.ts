@@ -1,4 +1,3 @@
-
 import { randomInt } from "node:crypto";
 
 // generate a shortCode for the url generation
@@ -20,5 +19,3 @@ export  function generateShortCode(length:number=7) :string{
     return code;
 
 }
-
-

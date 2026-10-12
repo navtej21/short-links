@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { generateShortCode } from "./generate-code";
 
+
 export type Link = {
   id: string;
   code: string;
@@ -71,3 +72,4 @@ export async function createLink(
     `Could not generate a unique code after ${MAX_ATTEMPTS} attempts`
   );
 }
+
