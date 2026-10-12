@@ -1,5 +1,6 @@
 import { createUserClient } from "@/lib/supabase/user";
 import { CopyButton } from "./copy-button";
+import Link from "next/link";
 
 const dateFormat = new Intl.DateTimeFormat("en-IN", {
   dateStyle: "medium",
@@ -54,6 +55,13 @@ export async function LinksList() {
               <p className="text-xs text-gray-500">
                 {dateFormat.format(new Date(link.created_at))}
               </p>
+
+              <Link
+                href={`/dashboard/links/${link.id}`}
+                className="text-sm underline"
+              >
+                Stats
+              </Link>
             </div>
             <CopyButton text={shortUrl} />
           </li>
