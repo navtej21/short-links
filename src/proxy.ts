@@ -40,9 +40,6 @@ export async function proxy(request: NextRequest) {
   const isDashboard = pathname.startsWith("/dashboard");
   const isLogin = pathname === "/login";
 
-
-  const token = request.cookies.get("supabase-token")?.value;
-
   if (!user && isDashboard) {
     return redirectWithCookies(request, response, "/login");
   }

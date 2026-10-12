@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ClickInfo } from "./click-info";
-import { link } from "fs";
 
 // never store a broken short link
 
@@ -20,7 +19,7 @@ export async function logClick(
     });
 
     if (error) {
-      throw new Error("logclick failed", error);
+      throw new Error(`logClick failed: ${error.message}`);
     }
   } catch (err) {
     console.log("error", err);

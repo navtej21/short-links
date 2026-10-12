@@ -27,16 +27,14 @@ export async function signup(formData: FormData) {
   const { email, password } = readCredentials(formData);
   const supabase = await createUserClient();
 
-  const { data,error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({ email, password });
 
-  console.log(data);
-
-   if (!data.session) {
+  if (error) failWith(error.message);
+  if (!data.session) {
     failWith(
       "Could not create the account. If you already have one, use Log in."
     );
   }
-  if (error) {failWith(error.message)};
 
   redirect("/dashboard");
 }

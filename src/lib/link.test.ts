@@ -1,14 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createLink, InvalidUrlError } from "./links";
+import { createLink, InvalidUrlError, RateLimitError, MAX_LINKS_PER_HOUR } from "./links";
 
 const single = vi.fn();
+const recentCount = vi.fn();
 
-// Mirrors the real chain: from().insert().select().single()
+// Mirrors the real chains:
+//   from().insert().select().single()
+//   from().select().eq().gte()  (rate-limit count)
 const client = {
   from: () => ({
     insert: () => ({
       select: () => ({ single }),
+    }),
+    select: () => ({
+      eq: () => ({ gte: recentCount }),
     }),
   }),
 } as unknown as SupabaseClient;
@@ -33,6 +39,22 @@ const collision = {
 describe("createLink", () => {
   beforeEach(() => {
     single.mockReset();
+    recentCount.mockReset();
+    recentCount.mockResolvedValue({ count: 0, error: null });
+  });
+
+  it("refuses when the user hit the hourly limit", async () => {
+    recentCount.mockResolvedValue({ count: MAX_LINKS_PER_HOUR, error: null });
+
+    await expect(createLink(client, input)).rejects.toThrow(RateLimitError);
+    expect(single).not.toHaveBeenCalled();
+  });
+
+  it("allows creation just under the limit", async () => {
+    recentCount.mockResolvedValue({ count: MAX_LINKS_PER_HOUR - 1, error: null });
+    single.mockResolvedValueOnce({ data: row, error: null });
+
+    await expect(createLink(client, input)).resolves.toEqual(row);
   });
 
   it("retries after a code collision and then succeeds", async () => {
